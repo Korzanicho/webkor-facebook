@@ -574,23 +574,6 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
                                 <p><input class="button-primary" type="submit" name="send" value="<?php _e('Save all settings', 'aspexifblikebox'); ?>" id="submitbutton" />
                                     <input class="button-secondary" type="submit" name="preview" value="<?php _e('Save and preview', 'aspexifblikebox'); ?>" id="previewbutton" /></p>
                             </form>
-                            <div class="postbox">
-                                <h3><span><?php _e('Made by', 'aspexifblikebox'); ?></span></h3>
-                                <div class="inside">
-                                    <div style="width: 170px; margin: 0 auto;">
-                                        <a href="<?php echo $this->get_pro_url(); ?>" target="_blank"><img src="<?php echo WKFBOX_URL.'images/aspexi300.png'; ?>" alt="" border="0" width="150" /></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="postbox">
-                                <h3><span><?php _e('Security Services with ASecure.me', 'aspexifblikebox'); ?></span></h3>
-                                <div class="inside">
-                                    <div style="width: 170px; margin: 0 auto;">
-                                        <a href="https://asecure.me/?utm_source=likeboxfree" target="_blank"><img src="<?php echo WKFBOX_URL.'images/be250.png'; ?>" alt="" border="0" width="170" /></a>
-                                    </div>
-                                    <p style="text-align: center;"><?php _e('We offer security services, backups and more. <a href="https://asecure.me/?utm_source=likeboxfree" target="_blank">Check out now</a>.'); ?></p>
-                                </div>
-                            </div>
                             <div id="aspexifblikebox-footer" style="text-align:left;text-shadow:0 1px 0 #fff;margin:0 0 10px;color:#888;"><?php echo sprintf(__('If you like %s please leave us a %s rating. A huge thank you in advance!'), '<strong>Aspexi Like Box Slider HD</strong>', '<a href="https://wordpress.org/support/plugin/aspexi-facebook-like-box/reviews/#new-post" target="_blank">&#9733;&#9733;&#9733;&#9733;&#9733</a>') ?></div>
                             <script type="text/javascript">
                                 jQuery(document).ready(function(){
