@@ -55,7 +55,6 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
       $this->settings();
 
       add_action( 'admin_menu',               array( &$this, 'adminMenu')); //zrobione
-      add_action( 'admin_notices',            array( &$this, 'admin_notices')); //zrobione
       add_action( 'init',                     array( &$this, 'init' ), 10 ); // NIE - tylko tłumaczenia
       add_action( 'wp_footer',                array( &$this, 'get_html' ), 21 );
       add_action( 'admin_enqueue_scripts',    array( &$this, 'admin_scripts') );
@@ -71,9 +70,6 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
 
         /* Internationalization */
         load_plugin_textdomain( 'aspexifblikebox', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-
-        /* Exras */
-        $this->extras_init();
     }
 
     public function settings() {
@@ -95,7 +91,8 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
         'hideCover'   => false,
         'timeLine'    => 'timeline,',
         'messages'    => 'messages',
-        'events'      => 'events'
+        'events'      => 'events',
+        'fbIcon'      => 'fb2-top.png'
       ];
 
       if ( !get_option( 'aspexifblikebox_options' ) )
@@ -104,16 +101,11 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
         $this->cf = get_option( 'aspexifblikebox_options' );
     }
 
-    //Do usunięcia
+    
     public function settings_link( $action_links, $plugin_file ){
       if( $plugin_file == plugin_basename(__FILE__) ) {
-
-        $pro_link = $this->get_pro_link();
-        array_unshift( $action_links, $pro_link );
-
         $settings_link = '<a href="themes.php?page=' . basename( __FILE__ )  .  '">' . __("Settings") . '</a>';
         array_unshift( $action_links, $settings_link );
-
       }
       return $action_links;
     }
@@ -215,6 +207,7 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
         $wkfbRequestOptions['timeLine']      = isset( $_REQUEST['wkfb_timeline'] ) ? 'timeline,' : '';
         $wkfbRequestOptions['messages']      = isset( $_REQUEST['wkfb_messages'] ) ? 'messages,' : '';
         $wkfbRequestOptions['events']        = isset( $_REQUEST['wkfb_events'] ) ? 'events' : '';
+        $wkfbRequestOptions['fbIcon']        = isset( $_REQUEST['wkfb_btimage'] ) ? $_REQUEST['wkfb_btimage'] : 'fb2-top.png';
         $this->cf = array_merge( (array)$this->cf, $wkfbRequestOptions );
         
         update_option( 'aspexifblikebox_options',  $this->cf, '', 'yes' );
@@ -400,10 +393,12 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
                         <th scope="row">Obrazek ikony</th>
                         <td>
                           <span>
-                            <input type="radio" name="wkfb_btimage" value="fb1-right" checked disabled readonly />&nbsp;<img src="<?php echo WKFBOX_URL.'images/fb1-right.png'; ?>" alt="Facebook" style="cursor:pointer;" />
+                            <input type="radio" name="wkfb_btimage" value="fb1-right.png" <?php echo $this->cf['fbIcon'] == "fb1-right.png" ? 'checked' : '';?>/>
+                            <img src="<?php echo WKFBOX_URL.'images/fb1-right.png'; ?>" alt="Facebook" style="cursor:pointer;" />
                           </span>
                           <span>
-                            <input type="radio" name="wkfb_btimage" value="" disabled readonly />&nbsp;<img src="<?php echo WKFBOX_URL.'images/fb2-top.png'; ?>" alt="Facebook" style="cursor:pointer;" />
+                            <input type="radio" name="wkfb_btimage" value="fb2-top.png" <?php echo $this->cf['fbIcon'] == "fb2-top.png" ? 'checked' : '';?> />
+                            <img src="<?php echo WKFBOX_URL.'images/fb2-top.png'; ?>" alt="Facebook" style="cursor:pointer;" />
                           </span>
                         </td>
                       </tr>
@@ -578,167 +573,9 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
       }
     }
 
-    public function get_pro_url() {
-        return 'http://aspexi.com/downloads/aspexi-facebook-like-box-slider-hd/?src=free_plugin';
+    public function get_html( $preview = false ) {
+      include_once('facebookBox.php');
     }
-
-      public function get_pro_link() {
-          $ret = '';
-
-          $ret .= '&nbsp;&nbsp;&nbsp;<a href="'.$this->get_pro_url().'" target="_blank">'.__( 'Get PRO version', 'aspexifblikebox' ).'</a>';
-
-          return $ret;
-      }
-
-      public function get_html( $preview = false ) {
-
-          $url            = apply_filters( 'aspexifblikebox_url', $this->cf['url'] );
-          $status         = apply_filters( 'aspexifblikebox_status', $this->cf['status'] );
-
-          // Disable maybe
-          if( ( !strlen( $url ) || 'enabled' != $status ) && !$preview )
-              return;
-
-          // Options
-          $locale         = apply_filters( 'aspexifblikebox_locale', $this->cf['locale'] );
-          $height         = apply_filters( 'aspexifblikebox_height', $this->cf['height'] );
-          $width          = apply_filters( 'aspexifblikebox_width', $this->cf['width'] );
-          $adaptative     = apply_filters( 'aspexifblikebox_adaptative', $this->cf['adaptative'] );
-          $friendsFaces   = apply_filters( 'aspexifblikebox_friendsFaces', $this->cf['friendsFaces'] );
-          $showPosts      = apply_filters( 'aspexifblikebox_showPosts', $this->cf['showPosts'] );
-          $hideCta        = apply_filters( 'aspexifblikebox_hideCta', $this->cf['hideCta'] );
-          $hideCover      = apply_filters( 'aspexifblikebox_hideCover', $this->cf['hideCover'] );
-          $smallHeader    = apply_filters( 'aspexifblikebox_smallHeader', $this->cf['smallHeader'] );
-          $timeLine       = apply_filters( 'aspexifblikebox_timeLine', $this->cf['timeLine'] );
-          $messages       = apply_filters( 'aspexifblikebox_messages', $this->cf['messages'] );
-          $events         = apply_filters( 'aspexifblikebox_smallHeader', $this->cf['events'] );
-          $placement      = 'right';
-          $btspace        = 0;
-          $btimage        = 'fb2-top.png';
-          $bordercolor    = '#3B5998';
-          $borderwidth    = 2;
-          $bgcolor        = '#ffffff';
-
-          $css_placement = array();
-          if( 'left' == $placement ) {
-              $css_placement[0] = 'right';
-              $css_placement[1] = '0 '.(48+$btspace).'px 0 5px';
-          } else {
-              $css_placement[0] = 'left';
-              $css_placement[1] = '0 0 0 '.(48+$btspace).'px';
-          }
-
-          $css_placement[2] = '50%;margin-top:-'.floor($height/2).'px';
-
-          $smallscreenscss = '';
-          if( $width > 0 ) {
-              $widthmax = (int)($width + 48 + $borderwidth + 10);
-              $smallscreenscss = '@media (max-width: '.$widthmax.'px) { .aspexifblikebox { display: none; } }';
-          }
-
-          $stream     = 'false';
-          $header     = 'false';
-
-          // Facebook button image (check in THEME CHILD -> THEME PARENT -> PLUGIN DIR)
-          // TODO: move this to admin page
-          $users_button_custom    = '/plugins/'.basename( dirname( __FiLE__ ) ).'/images/aspexi-fb-custom.png';
-          $users_button_template  = get_template_directory() . $users_button_custom;
-          $users_button_child     = get_stylesheet_directory() . $users_button_custom;
-          $button_uri             = '';
-
-          if( file_exists( $users_button_child ) )
-              $button_uri = get_stylesheet_directory_uri() . $users_button_custom;
-          elseif( file_exists( $users_button_template ) )
-              $button_uri = get_template_directory_uri() . $users_button_custom;
-          elseif( file_exists( plugin_dir_path( __FILE__ ).'images/'.$btimage ) )
-              $button_uri = WKFBOX_URL.'images/'.$btimage;
-
-          if( '' == $button_uri ) {
-              $button_uri = WKFBOX_URL.'images/fb1-right.png';
-          }
-
-          $button_uri  = apply_filters( 'aspexifblikebox_button_uri', $button_uri );
-
-          $output = '';
-
-          $page_url = 'https://www.facebook.com/'.$url;
-
-          $output .= '<div class="fb-root"></div>
-          <script>(function(d, s, id) {
-              var js, fjs = d.getElementsByTagName(s)[0];
-              if (d.getElementById(id)) return;
-              js = d.createElement(s); js.id = id;
-              js.src = "//connect.facebook.net/'.$locale.'/sdk.js#xfbml=1&version=v3.3&appId=339779149790099";
-              fjs.parentNode.insertBefore(js, fjs);
-          }(document, \'script\', \'facebook-jssdk\'));</script>
-          <style type="text/css">' . $smallscreenscss.' .fb-xfbml-parse-ignore {
-                  display: none;
-              }
-              
-              .aspexifblikebox {
-                  overflow: hidden;
-                  z-index: 99999999;
-                  position: fixed;
-                  padding: '.$css_placement[1].';
-                  top: ' . $css_placement[2] . ';
-                  right: -' . ($width) . 'px;
-              }
-              
-              .aspexifblikebox .aspexi_facebook_iframe {
-                  padding: 0;
-                  border: ' . $borderwidth . 'px solid ' . $bordercolor . ';
-                  background: #fff;
-                  width: ' . $width . 'px;
-                  height: ' . $height . 'px;
-                  box-sizing: border-box;
-              }
-              
-              .aspexifblikebox .fb-page {
-                  background: url("' . WKFBOX_URL . 'images/load.gif") no-repeat center center;
-                  width: ' . ($width - ($borderwidth * 2)). 'px;
-                  height: ' . ($height - ($borderwidth * 2)). 'px;
-                  margin: 0;
-              }
-              
-              .aspexifblikebox .fb-page span {
-                  background: #fff;
-                  height: 100% !important;
-              }
-              
-              .aspexifblikebox .aspexi_facebook_button {
-                  background: url("' . $button_uri . '") no-repeat scroll transparent;
-                  height: 155px;
-                  width: 48px;
-                  position: absolute;
-                  top: 0;
-                  left: 0;
-                  cursor: pointer;
-              }
-          </style>
-          <div class="aspexifblikebox">
-              <div class="aspexi_facebook_button"></div>
-              <div class="aspexi_facebook_iframe">
-                  <div 
-                    class="fb-page" 
-                    data-href="'.$page_url.'" 
-                    data-hide-cta="'.$hideCta.'"
-                    data-width="'.($width - 4).'" 
-                    data-height="'.($height - 4).'" 
-                    data-hide-cover="'.$hideCover.'"
-                    data-show-posts="'.$showPosts.'" 
-                    data-show-facepile="'.$friendsFaces.'" 
-                    data-adapt-container-width="'.$adaptative.'"
-                    data-small-header="'.$smallHeader.'"
-                    data-tabs="'.$timeLine.$messages.$events.'"
-                  >
-                  <div class="fb-xfbml-parse-ignore"><blockquote cite="'.$page_url.'"><a href="'.$page_url.'">Facebook</a></blockquote></div></div>
-              </div>
-          </div>';
-
-          $output = apply_filters( 'aspexifblikebox_output', $output );
-
-          echo $output;
-      }
 
       public function init_scripts() {
           $width      = apply_filters( 'aspexifblikebox_width', $this->cf['width'] );
@@ -771,61 +608,15 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
           return;
       }
 
-      public function extras_init() {
-          /* qTranslate */
-          add_filter( 'aspexifblikebox_admin_settings', array( &$this, 'extras_qtranslate_admin' ) );
-          add_filter( 'aspexifblikebox_admin_settings', array( &$this, 'extras_polylang_admin' ) );
-      }
-
       public function extras_qtranslate_detect() {
           global $q_config;
           return (isset($q_config) && !empty($q_config));
-      }
-
-      public function extras_qtranslate_admin( $extra_admin_content ) {
-          $qtranslate_locale = $this->extras_qtranslate_detect();
-
-          if( $qtranslate_locale ) {
-              $extra_admin_content .= '<tr valign="top">
-  <th scope="row">'.__('qTranslate/mqTranslate', 'aspexifblikebox').'<br /><span style="font-size: 10px">'.__('Try to detect qTranslate/mqTranslate language and force it instead of language set in Localization.', 'aspexifblikebox').'</span></th>
-  <td><input type="checkbox" value="on" name="wkfb_qtranslate" disabled readonly />'.$this->get_pro_link().'</td>
-</tr>';
-          }
-
-          return $extra_admin_content;
-      }
-
-      public function extras_polylang_admin( $extra_admin_content ) {
-
-          if(function_exists('pll_current_language')) {
-              $extra_admin_content .= '<tr valign="top">
-  <th scope="row">'.__('Polylang', 'aspexifblikebox').'<br /><span style="font-size: 10px">'.__('Try to detect Polylang language and force it instead of language set in Localization.', 'aspexifblikebox').'</span></th>
-  <td><input type="checkbox" value="on" name="wkfb_polylang" disabled readonly />'.$this->get_pro_link().'</td>
-</tr>';
-          }
-
-          return $extra_admin_content;
       }
 
       // Check if Page Plugin is enabled
       public function is_pp() {
 
           return $this->cf['page_plugin'];
-      }
-
-      public function admin_notices() {
-
-          if( !isset($this->cf['hide_notice']) || @$this->cf['hide_notice'] != '1' ) {
-      ?>
-          <div class="notice notice-success" id="afblnotice" style="display: flex;flex-wrap: wrap;">
-              <p><?php echo 'To jest plugin tworzony na podstawie innego pluginu'; ?>
-                  <div style="flex: 1 300px;margin: .5em 0;text-align: right;">
-                      <input type="button" id="afblhidenotice" value="<?="Zamknij" ?>" class="button" />
-                  </div>
-              </p>
-          </div>
-      <?php
-          }
       }
 
       public function admin_notices_handle() {
