@@ -92,7 +92,10 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
         'timeLine'    => 'timeline,',
         'messages'    => 'messages',
         'events'      => 'events',
-        'fbIcon'      => 'fb2-top.png'
+        'fbIcon'      => 'fb2-top.png',
+        'edgeSpace'   => 0,
+        'iconVertical' => 'top',
+        'iconVerticalConst' => 0
       ];
 
       if ( !get_option( 'aspexifblikebox_options' ) )
@@ -208,6 +211,10 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
         $wkfbRequestOptions['messages']      = isset( $_REQUEST['wkfb_messages'] ) ? 'messages,' : '';
         $wkfbRequestOptions['events']        = isset( $_REQUEST['wkfb_events'] ) ? 'events' : '';
         $wkfbRequestOptions['fbIcon']        = isset( $_REQUEST['wkfb_btimage'] ) ? $_REQUEST['wkfb_btimage'] : 'fb2-top.png';
+        $wkfbRequestOptions['edgeSpace']     = isset( $_REQUEST['wkfb_btspace'] ) ? $_REQUEST['wkfb_btspace'] : 0;
+        $wkfbRequestOptions['iconVertical']  = isset( $_REQUEST['wkfb_btvertical'] ) ? $_REQUEST['wkfb_btvertical'] : 'top';
+        $wkfbRequestOptions['iconVerticalConst']  = isset( $_REQUEST['wkfb_btvertical_val'] ) ? $_REQUEST['wkfb_btvertical_val'] : 0;
+        
         $this->cf = array_merge( (array)$this->cf, $wkfbRequestOptions );
         
         update_option( 'aspexifblikebox_options',  $this->cf, '', 'yes' );
@@ -378,15 +385,15 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
                           <span style="font-size: 10px">Określ pustą przestrzeń między ikoną, a krawędzią strony</span>
                         </th>
                         <td>
-                          <input type="text" name="wkfb_btspace" value="0" size="3" disabled readonly /> px</td>
+                          <input type="text" name="wkfb_btspace" value="<?= $this->cf['edgeSpace'] ?>" size="3"/> px</td>
                       </tr>
                       <tr valign="top">
                         <th scope="row">Położenie ikony</th>
-                        <td><input type="radio" name="wkfb_btvertical" value="top" disabled readonly />Na górze box'a<br />
-                          <input type="radio" name="wkfb_btvertical" value="middle" checked disabled readonly />Na środku box'a<br />
-                          <input type="radio" name="wkfb_btvertical" value="bottom" disabled readonly />Na dole box'a<br />
-                          <input type="radio" name="wkfb_btvertical" value="fixed" disabled readonly />Stała wartość
-                          <input type="text" name="wkfb_btvertical_val" value="" size="3" disabled readonly />&nbsp;px Od góry box'a
+                        <td><input type="radio" name="wkfb_btvertical" value="top" <?= $this->cf['iconVertical'] == "top" ? 'checked' : '';?>/>Na górze box'a<br />
+                          <input type="radio" name="wkfb_btvertical" value="middle" <?= $this->cf['iconVertical'] == "middle" ? 'checked' : '';?>/>Na środku box'a<br />
+                          <input type="radio" name="wkfb_btvertical" value="bottom" <?= $this->cf['iconVertical'] == "bottom" ? 'checked' : '';?>/>Na dole box'a<br />
+                          <input type="radio" name="wkfb_btvertical" value="fixed" <?= $this->cf['iconVertical'] == "fixed" ? 'checked' : '';?>/>Stała wartość
+                          <input type="text" name="wkfb_btvertical_val" value="<?= $this->cf['iconVerticalConst'];?>" size="3" /> px (od góry box'a)
                         </td>
                       </tr>
                       <tr valign="top">

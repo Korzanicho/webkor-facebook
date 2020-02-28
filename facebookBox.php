@@ -2,11 +2,9 @@
 	$url            = apply_filters( 'aspexifblikebox_url', $this->cf['url'] );
 	$status         = apply_filters( 'aspexifblikebox_status', $this->cf['status'] );
 
-	// Disable maybe
 	if( ( !strlen( $url ) || 'enabled' != $status ) && !$preview )
-			return;
+		return;
 
-	// Options
 	$locale         = apply_filters( 'aspexifblikebox_locale', $this->cf['locale'] );
 	$height         = apply_filters( 'aspexifblikebox_height', $this->cf['height'] );
 	$width          = apply_filters( 'aspexifblikebox_width', $this->cf['width'] );
@@ -20,19 +18,30 @@
 	$messages       = apply_filters( 'aspexifblikebox_messages', $this->cf['messages'] );
 	$events         = apply_filters( 'aspexifblikebox_smallHeader', $this->cf['events'] );
 	$btimage        = apply_filters( 'aspexifblikebox_fbIcon', $this->cf['fbIcon'] );
-	$placement      = 'right';
-	$btspace        = 0;
+	$edgeSpace 			= apply_filters( 'aspexifblikebox_edgeSpace', $this->cf['edgeSpace'] );
+	$iconVertical		= apply_filters( 'aspexifblikebox_iconVertical', $this->cf['iconVertical'] );
+	$placement			= 'right';
 	$bordercolor    = '#3B5998';
 	$borderwidth    = 2;
 	$bgcolor        = '#ffffff';
 
+	$buttonHeight = stripos($btimage, 'fb2') === 0 ? 48 : 155; 
+
+	//Icon Verical Align
+	if ($iconVertical == "middle") $iconVertical = "top: 50%; transform: translateY(-50%);";
+	if ($iconVertical == "fixed"){
+		$iconVerticalConst = apply_filters( 'aspexifblikebox_iconVerticalConst', $this->cf['iconVerticalConst'] );
+		$iconVertical = "top: {$iconVerticalConst}px;";
+	}
+	else $iconVertical = "{$iconVertical}: 0;";
+
 	$css_placement = array();
 	if( 'left' == $placement ) {
 			$css_placement[0] = 'right';
-			$css_placement[1] = '0 '.(48+$btspace).'px 0 5px';
+			$css_placement[1] = '0 '.(48+$edgeSpace).'px 0 5px';
 	} else {
 			$css_placement[0] = 'left';
-			$css_placement[1] = '0 0 0 '.(48+$btspace).'px';
+			$css_placement[1] = '0 0 0 '.(48+$edgeSpace).'px';
 	}
 
 	$css_placement[2] = '50%;margin-top:-'.floor($height/2).'px';
@@ -114,10 +123,10 @@
 			
 			.aspexifblikebox .aspexi_facebook_button {
 					background: url("' . $button_uri . '") no-repeat scroll transparent;
-					height: 155px;
+					height: '.$buttonHeight.'px;
 					width: 48px;
 					position: absolute;
-					top: 0;
+					'.$iconVertical.'
 					left: 0;
 					cursor: pointer;
 			}
