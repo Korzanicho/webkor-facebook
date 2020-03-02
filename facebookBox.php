@@ -1,4 +1,7 @@
 <?php
+	include_once('WkFbBox.php');
+	$wkfbFunctions = new WkFbBox($this->cf['locale']);
+
 	$url            = apply_filters( 'aspexifblikebox_url', $this->cf['url'] );
 	$status         = apply_filters( 'aspexifblikebox_status', $this->cf['status'] );
 
@@ -27,24 +30,16 @@
 
 	$buttonHeight = stripos($btimage, 'fb2') === 0 ? 48 : 155; 
 
-	//Icon Verical Align
-	if ($iconVertical == "middle") $iconVertical = "top: 50%; transform: translateY(-50%);";
-	if ($iconVertical == "fixed"){
-		$iconVerticalConst = apply_filters( 'aspexifblikebox_iconVerticalConst', $this->cf['iconVerticalConst'] );
-		$iconVertical = "top: {$iconVerticalConst}px;";
-	}
-	else $iconVertical = "{$iconVertical}: 0;";
-
-	$css_placement = array();
+	$cssPlacement = [];
 	if( 'left' == $placement ) {
-			$css_placement[0] = 'right';
-			$css_placement[1] = '0 '.(48+$edgeSpace).'px 0 5px';
+			$cssPlacement[0] = 'right';
+			$cssPlacement[1] = '0 '.(48+$edgeSpace).'px 0 5px';
 	} else {
-			$css_placement[0] = 'left';
-			$css_placement[1] = '0 0 0 '.(48+$edgeSpace).'px';
+			$cssPlacement[0] = 'left';
+			$cssPlacement[1] = '0 0 0 '.(48+(int)$edgeSpace).'px';
 	}
 
-	$css_placement[2] = '50%;margin-top:-'.floor($height/2).'px';
+	$cssPlacement[2] = '50%;margin-top:-'.floor($height/2).'px';
 
 	$smallscreenscss = '';
 	if( $width > 0 ) {
@@ -55,25 +50,11 @@
 	$stream     = 'false';
 	$header     = 'false';
 
-	// Facebook button image (check in THEME CHILD -> THEME PARENT -> PLUGIN DIR)
-	// TODO: move this to admin page
-	$users_button_custom    = '/plugins/'.basename( dirname( __FiLE__ ) ).'/images/aspexi-fb-custom.png';
-	$users_button_template  = get_template_directory() . $users_button_custom;
-	$users_button_child     = get_stylesheet_directory() . $users_button_custom;
-	$button_uri             = '';
 
-	if( file_exists( $users_button_child ) )
-			$button_uri = get_stylesheet_directory_uri() . $users_button_custom;
-	elseif( file_exists( $users_button_template ) )
-			$button_uri = get_template_directory_uri() . $users_button_custom;
-	elseif( file_exists( plugin_dir_path( __FILE__ ).'images/'.$btimage ) )
-			$button_uri = WKFBOX_URL.'images/'.$btimage;
-
-	if( '' == $button_uri ) {
-			$button_uri = WKFBOX_URL.'images/fb1-right.png';
+	if( file_exists( plugin_dir_path( __FILE__ ).'images/'.$btimage ) ) $button_uri = WKFBOX_URL.'images/'.$btimage;
+	else if( '' == $button_uri ) {
+		$button_uri = WKFBOX_URL.'images/fb1-right.png' ;
 	}
-
-	$button_uri  = apply_filters( 'aspexifblikebox_button_uri', $button_uri );
 
 	$output = '';
 
@@ -95,8 +76,8 @@
 					overflow: hidden;
 					z-index: 99999999;
 					position: fixed;
-					padding: '.$css_placement[1].';
-					top: ' . $css_placement[2] . ';
+					padding: '.$cssPlacement[1].';
+					top: ' . $cssPlacement[2] . ';
 					right: -' . ($width) . 'px;
 			}
 			
@@ -126,7 +107,7 @@
 					height: '.$buttonHeight.'px;
 					width: 48px;
 					position: absolute;
-					'.$iconVertical.'
+					'.$wkfbFunctions->setIconVertical($iconVertical, $this->cf['iconVerticalConst']).'
 					left: 0;
 					cursor: pointer;
 			}
