@@ -9,8 +9,9 @@ Text Domain: webkorfacebook
 */
 
 defined('ABSPATH') or exit();
+include_once('WkfbBox.php');
 
-'Plugin dodaje box ze stroną Facebookową (oś czasu, wydarzenia, wiadomości)';
+// 'Plugin dodaje box ze stroną Facebookową (oś czasu, wydarzenia, wiadomości)';
 
 if ( !class_exists( 'WebkorFbBox' ) ) {
 
@@ -239,7 +240,8 @@ if ( !class_exists( 'WebkorFbBox' ) ) {
     }
 
     public function get_html( $preview = false ) {
-      include_once('facebookBox.php');
+      $wkfbBox = new WkfbBox($this->cf);
+      $wkfbBox->frontView();
     }
     
       public function init_scripts() {

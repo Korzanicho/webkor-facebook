@@ -1,15 +1,4 @@
 <?php
-	function wkfbSetIconVertical(String $iconVertical = '', Int $distance = 0)
-	{
-		if ($iconVertical == "middle") $iconVertical = "top: 50%; transform: translateY(-50%);";
-		if ($iconVertical == "fixed"){
-			$iconVerticalConst = apply_filters( 'aspexifblikebox_iconVerticalConst', $distance );
-			$iconVertical = "top: {$iconVerticalConst}px;";
-		}
-		else $iconVertical = "{$iconVertical}: 0;";
-		return $iconVertical;
-	}
-
 	/**
 	* Webkor Facebook Block Functions.
 	* Author: Adrian Korzan <adrian.korzan@gmail.com>
@@ -36,6 +25,8 @@
 		*/
 		public function __construct($config) {
 			$this->cf = $config;
+			$this->setCssPlacement();
+			$this->setButtonUri();
 		}
 
 		/**
@@ -67,17 +58,17 @@
 					
 					.aspexifblikebox .aspexi_facebook_iframe {
 							padding: 0;
-							border: ' . $borderwidth . 'px solid ' . $bordercolor . ';
+							border: ' . $this->cf['borderwidth'] . 'px solid ' . $this->cf['bordercolor'] . ';
 							background: #fff;
-							width: ' . $width . 'px;
-							height: ' . $height . 'px;
+							width: ' . $this->cf['width'] . 'px;
+							height: ' . $this->cf['height'] . 'px;
 							box-sizing: border-box;
 					}
 					
 					.aspexifblikebox .fb-page {
 							background: url("' . WKFBOX_URL . 'images/load.gif") no-repeat center center;
-							width: ' . ($width - ($borderwidth * 2)). 'px;
-							height: ' . ($height - ($borderwidth * 2)). 'px;
+							width: ' . ($this->cf['width'] - ($this->cf['borderwidth'] * 2)). 'px;
+							height: ' . ($this->cf['height'] - ($this->cf['borderwidth'] * 2)). 'px;
 							margin: 0;
 					}
 					
@@ -87,11 +78,11 @@
 					}
 					
 					.aspexifblikebox .aspexi_facebook_button {
-							background: url("' . $button_uri . '") no-repeat scroll transparent;
-							height: '.$buttonHeight.'px;
+							background: url("' . $this->buttonUri . '") no-repeat scroll transparent;
+							height: '.$this->setButtonHeight().'px;
 							width: 48px;
 							position: absolute;
-							'.$wkfbFunctions->setIconVertical($iconVertical, $this->cf['iconVerticalConst']).'
+							'.$this->setIconVertical($this->cf['iconVertical'], $this->cf['iconVerticalConst']).'
 							left: 0;
 							cursor: pointer;
 					}
@@ -101,20 +92,22 @@
 					<div class="aspexi_facebook_iframe">
 							<div 
 								class="fb-page" 
-								data-href="'.$page_url.'" 
-								data-hide-cta="'.$hideCta.'"
-								data-width="'.($width - 4).'" 
-								data-height="'.($height - 4).'" 
-								data-hide-cover="'.$hideCover.'"
-								data-show-posts="'.$showPosts.'" 
-								data-show-facepile="'.$friendsFaces.'" 
-								data-adapt-container-width="'.$adaptative.'"
-								data-small-header="'.$smallHeader.'"
-								data-tabs="'.$timeLine.$messages.$events.'"
+								data-href="'.$this->setPageUrl().'" 
+								data-hide-cta="'.$this->cf['hideCta'].'"
+								data-width="'.($this->cf['width'] - 4).'" 
+								data-height="'.($this->cf['height'] - 4).'" 
+								data-hide-cover="'.$this->cf['hideCover'].'"
+								data-show-posts="'.$this->cf['showPosts'].'" 
+								data-show-facepile="'.$this->cf['friendsFaces'].'" 
+								data-adapt-container-width="'.$this->cf['adaptative'].'"
+								data-small-header="'.$this->cf['smallHeader'].'"
+								data-tabs="'.$this->cf['timeLine'].$this->cf['messages'].$this->cf['events'].'"
 							>
-							<div class="fb-xfbml-parse-ignore"><blockquote cite="'.$page_url.'"><a href="'.$page_url.'">Facebook</a></blockquote></div></div>
+							<div class="fb-xfbml-parse-ignore"><blockquote cite="'.$this->setPageUrl().'"><a href="'.$this->setPageUrl().'">Facebook</a></blockquote></div></div>
 					</div>
 			</div>';
+
+			echo $this->output;
 		}
 			
 		/**
@@ -123,7 +116,7 @@
 		* @param Int $distance
 		* @return String
 		*/
-		private function setIconVertical(String $iconVertical = '', Int $distance = 0): String
+		public function setIconVertical(String $iconVertical = '', Int $distance = 0): String
 		{
 			if ($iconVertical == "middle") $iconVertical = "top: 50%; transform: translateY(-50%);";
 			if ($iconVertical == "fixed"){
@@ -144,7 +137,12 @@
 				$this->cf['borderWidth'] = 2; //temp
 				$widthmax = (int)($this->cf['width'] + 48 + $this->cf['borderWidth'] + 10);
 				return '@media (max-width: '.$widthmax.'px) { .aspexifblikebox { display: none; } }';
+			}
 		}
+
+		public function setPageUrl()
+		{
+			return 'https://www.facebook.com/'.$this->cf['url'];
 		}
 
 		/**
@@ -180,5 +178,4 @@
 			else if( '' == $this->buttonUri ) $this->buttonUri = WKFBOX_URL.'images/fb1-right.png' ;
 		}
 
-		
 	}
